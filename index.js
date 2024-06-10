@@ -29,7 +29,9 @@ async function run() {
       .db("PulsefitDB")
       .collection("testimonials");
     const communityCollection = client.db("PulsefitDB").collection("community");
-
+    const subscribeCollection = client
+      .db("PulsefitDB")
+      .collection("subscribes");
     // User Collection
     app.post("/users", async (req, res) => {
       const user = req.body;
@@ -64,6 +66,24 @@ async function run() {
     app.get("/community", async (req, res) => {
       const community = await communityCollection.find().toArray();
       res.send(community);
+    });
+    app.get("/community/upvotes", async (req, res) => {
+      const community = await communityCollection
+        .find()
+        .sort({ upvotes: -1 })
+        .toArray();
+      res.send(community);
+    });
+
+    // Community Collection
+    app.post("/subscribes", async (req, res) => {
+      const subscribe = req.body;
+      const result = await subscribeCollection.insertOne(subscribe);
+      res.send(result);
+    });
+    app.get("/subscribes", async (req, res) => {
+      const subscribe = await subscribeCollection.find().toArray();
+      res.send(subscribe);
     });
   } finally {
     // await client.close();
