@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
 
 // middleware
@@ -32,6 +32,9 @@ async function run() {
     const subscribeCollection = client
       .db("PulsefitDB")
       .collection("subscribes");
+    const trainerCollection = client.db("PulsefitDB").collection("trainers");
+    const applyCollection = client.db("PulsefitDB").collection("apply");
+
     // User Collection
     app.post("/users", async (req, res) => {
       const user = req.body;
@@ -58,7 +61,10 @@ async function run() {
 
     // Testimonials Collection
     app.get("/testimonials", async (req, res) => {
-      const testimonials = await testimonialCollection.find().toArray();
+      const testimonials = await testimonialCollection
+        .find()
+        .sort({ ratings: -1 })
+        .toArray();
       res.send(testimonials);
     });
 
@@ -75,7 +81,7 @@ async function run() {
       res.send(community);
     });
 
-    // Community Collection
+    // Subscribe Collection
     app.post("/subscribes", async (req, res) => {
       const subscribe = req.body;
       const result = await subscribeCollection.insertOne(subscribe);
@@ -85,6 +91,36 @@ async function run() {
       const subscribe = await subscribeCollection.find().toArray();
       res.send(subscribe);
     });
+
+    // Trainer Collection
+    app.get("/trainers", async (req, res) => {
+      const trainer = await trainerCollection.find().toArray();
+      res.send(trainer);
+    });
+    app.get("/trainers/experience", async (req, res) => {
+      const trainer = await trainerCollection
+        .find()
+        .sort({ experience: -1 })
+        .toArray();
+      res.send(trainer);
+    });
+    app.get("/trainers/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await trainerCollection.findOne(query);
+      res.send(result);
+    });
+
+    // Apply Trainer Collection
+    app.post("/apply", async (req, res) => {
+      const apply = req.body;
+      const result = await applyCollection.insertOne(apply);
+      res.send(result);
+    });
+    app.get("/apply", async (req, res) => {
+      const apply = await applyCollection.find().toArray();
+      res.send(apply);
+    });
   } finally {
     // await client.close();
   }
@@ -92,7 +128,7 @@ async function run() {
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
-  res.send("Pulsfit is running");
+  res.send("Pulsefit is running");
 });
 
 app.listen(port, () => {
