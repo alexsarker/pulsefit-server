@@ -45,6 +45,21 @@ async function run() {
       const users = await userCollection.find().toArray();
       res.send(users);
     });
+    app.patch("/users/email/:email", async (req, res) => {
+      const email = req.params.email;
+      const updatedUserData = req.body;
+      const result = await userCollection.updateOne(
+        { email: email },
+        { $set: updatedUserData }
+      );
+      res.json(result);
+    });
+    app.get("/users/email/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await userCollection.findOne(query);
+      res.send(result);
+    });
 
     // Class Collection
     app.get("/classes", async (req, res) => {
@@ -117,8 +132,10 @@ async function run() {
       const result = await applyCollection.insertOne(apply);
       res.send(result);
     });
-    app.get("/apply", async (req, res) => {
-      const apply = await applyCollection.find().toArray();
+    app.get("/apply/email/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const apply = await applyCollection.findOne(query);
       res.send(apply);
     });
   } finally {
