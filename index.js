@@ -45,15 +45,15 @@ async function run() {
       const users = await userCollection.find().toArray();
       res.send(users);
     });
-    app.patch("/users/email/:email", async (req, res) => {
+    app.patch("/user/email/:email", async (req, res) => {
       const email = req.params.email;
-      const updatedUserData = req.body;
+      const userData = req.body;
       const result = await userCollection.updateOne(
         { email: email },
-        { $set: updatedUserData }
+        { $set: userData }
       );
       res.json(result);
-    });
+    });    
     app.get("/users/email/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
@@ -125,6 +125,11 @@ async function run() {
       const result = await trainerCollection.findOne(query);
       res.send(result);
     });
+    app.post("/trainers", async (req, res) => {
+      const trainer = req.body;
+      const result = await trainerCollection.insertOne(trainer);
+      res.send(result);
+    });
 
     // Apply Trainer Collection
     app.post("/apply", async (req, res) => {
@@ -132,11 +137,30 @@ async function run() {
       const result = await applyCollection.insertOne(apply);
       res.send(result);
     });
+    app.get("/apply", async (req, res) => {
+      const apply = await applyCollection.find().toArray();
+      res.send(apply);
+    });
     app.get("/apply/email/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const apply = await applyCollection.findOne(query);
       res.send(apply);
+    });
+    app.get("/apply/detail/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await applyCollection.findOne(query);
+      res.send(result);
+    });
+    app.patch("/apply/email/:email", async (req, res) => {
+      const email = req.params.email;
+      const applyData = req.body;
+      const result = await applyCollection.updateOne(
+        { email: email },
+        { $set: applyData }
+      );
+      res.json(result);
     });
   } finally {
     // await client.close();
