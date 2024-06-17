@@ -53,7 +53,7 @@ async function run() {
         { $set: userData }
       );
       res.json(result);
-    });    
+    });
     app.get("/users/email/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
@@ -73,6 +73,27 @@ async function run() {
         .toArray();
       res.send(classes);
     });
+    app.post("/classes", async (req, res) => {
+      const classData = req.body;
+      const result = await classCollection.insertOne(classData);
+      res.send(result);
+    });
+    app.delete("/classes/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await classCollection.deleteOne(query);
+      res.send(result);
+    });
+    app.patch("/classes/:id", async (req, res) => {
+      const id = req.params.id;
+      const classData = req.body;
+      const result = await classCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: classData }
+      );
+      res.json(result);
+    });
+
 
     // Testimonials Collection
     app.get("/testimonials", async (req, res) => {
@@ -94,6 +115,27 @@ async function run() {
         .sort({ upvotes: -1 })
         .toArray();
       res.send(community);
+    });
+    app.post("/community", async (req, res) => {
+      const forum = req.body;
+      const result = await communityCollection.insertOne(forum);
+      res.send(result);
+    });
+    app.delete("/community/:id", async (req, res) => {
+      const id = req.params.id;
+
+      const query = { _id: new ObjectId(id) };
+      const result = await communityCollection.deleteOne(query);
+      res.send(result);
+    });
+    app.patch("/community/:id", async (req, res) => {
+      const id = req.params.id;
+      const forumData = req.body;
+      const result = await communityCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: forumData }
+      );
+      res.json(result);
     });
 
     // Subscribe Collection
@@ -128,6 +170,13 @@ async function run() {
     app.post("/trainers", async (req, res) => {
       const trainer = req.body;
       const result = await trainerCollection.insertOne(trainer);
+      res.send(result);
+    });
+    app.delete("/trainers/:id", async (req, res) => {
+      const id = req.params.id;
+
+      const query = { _id: new ObjectId(id) };
+      const result = await trainerCollection.deleteOne(query);
       res.send(result);
     });
 
