@@ -8,6 +8,11 @@ const port = process.env.PORT || 5000;
 // middleware
 app.use(cors());
 app.use(express.json());
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://pulsefit-4743c.web.app"],
+  })
+);
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@clusterbase.o3yqpur.mongodb.net/?retryWrites=true&w=majority&appName=Clusterbase`;
 
@@ -21,7 +26,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    await client.connect();
+    // await client.connect();
 
     const userCollection = client.db("PulsefitDB").collection("users");
     const classCollection = client.db("PulsefitDB").collection("classes");
@@ -46,7 +51,7 @@ async function run() {
       const users = await userCollection.find().toArray();
       res.send(users);
     });
-    app.patch("/user/email/:email", async (req, res) => {
+    app.patch("/users/email/:email", async (req, res) => {
       const email = req.params.email;
       const userData = req.body;
       const result = await userCollection.updateOne(
