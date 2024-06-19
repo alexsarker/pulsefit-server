@@ -34,6 +34,7 @@ async function run() {
       .collection("subscribes");
     const trainerCollection = client.db("PulsefitDB").collection("trainers");
     const applyCollection = client.db("PulsefitDB").collection("apply");
+    const bookedCollection = client.db("PulsefitDB").collection("booked");
 
     // User Collection
     app.post("/users", async (req, res) => {
@@ -93,7 +94,12 @@ async function run() {
       );
       res.json(result);
     });
-
+    app.get("/classes/detail/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await classCollection.findOne(query);
+      res.send(result);
+    });
 
     // Testimonials Collection
     app.get("/testimonials", async (req, res) => {
@@ -210,6 +216,46 @@ async function run() {
         { $set: applyData }
       );
       res.json(result);
+    });
+
+    // subscription Trainer Collection
+    app.post("/booked", async (req, res) => {
+      const booked = req.body;
+      const result = await bookedCollection.insertOne(booked);
+      res.send(result);
+    });
+    app.get("/booked", async (req, res) => {
+      const booked = await bookedCollection.find().sort({ _id: -1 }).toArray();
+      res.send(booked);
+    });
+
+    app.get("/booked/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await bookedCollection.findOne(query);
+      res.send(result);
+    });
+    app.patch("/booked/:id", async (req, res) => {
+      const id = req.params.id;
+      const { packageName, price, payment, cardName, cardNumber } = req.body;
+      const query = { _id: new ObjectId(id) };
+      const update = {
+        $set: {
+          packageName,
+          price,
+          payment,
+          cardName,
+          cardNumber,
+        },
+      };
+      const result = await bookedCollection.updateOne(query, update);
+      res.send(result);
+    });
+    app.delete("/booked/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await bookedCollection.deleteOne(query);
+      res.send(result);
     });
   } finally {
     // await client.close();
